@@ -1,65 +1,49 @@
-import React, { useState } from "react";
-import "./App.css";
-import TodoForm from "./components/TodoForm";
-import TodoList from "./components/TodoList";
+import { useState, useEffect } from "react"
+import alanBtn from '@alan-ai/alan-sdk-web';
 
-const App = () => {
-  const [todo, setTodo] = useState("");
-  const [todos, setTodos] = useState([]);
-  const [editId, setEditId] = useState(0);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+var  App = () =>  {
+var [cart, setcart] = useState([])
+var [menuItems, setmenuItems] = useState([])
 
-    if (editId) {
-      const editTodo = todos.find((i) => i.id === editId);
-      const updatedTodos = todos.map((t) =>
-        t.id === editTodo.id
-          ? (t = { id: t.id, todo })
-          : { id: t.id, todo: t.todo }
-      );
-      setTodos(updatedTodos);
-      setEditId(0);
-      setTodo("");
-      return;
-    }
 
-    if (todo !== "") {
-      setTodos([{ id: `${todo}-${Date.now()}`, todo }, ...todos]);
-      setTodo("");
-    }
-  };
+useEffect(() => {
+  alanBtn({
+      key: '6273caa54122166263219bc6a734818b2e956eca572e1d8b807a3e2338fdd0dc/stage',
+      onCommand: (commandData) => {
+        if (commandData.command === 'getMenu') {
+         setmenuItems(commandData.data)
+        } else if (commandData.command === 'getMenu') {
+         setmenuItems(commandData.data)
+        }
+      }
+  });
+}, []);
 
-  const handleDelete = (id) => {
-    const delTodo = todos.filter((to) => to.id !== id);
-    setTodos([...delTodo]);
-  };
 
-  const handleEdit = (id) => {
-    const editTodo = todos.find((i) => i.id === id);
-    setTodo(editTodo.todo);
-    setEditId(id);
-  };
 
-  return (
-    <div className="App">
-      <div className="container">
-        <h1>Todo List App</h1>
-        <TodoForm
-          handleSubmit={handleSubmit}
-          todo={todo}
-          editId={editId}
-          setTodo={setTodo}
-        />
 
-        <TodoList
-          todos={todos}
-          handleEdit={handleEdit}
-          handleDelete={handleDelete}
-        />
-      </div>
-    </div>
-  );
-};
 
+var addtocart = (menuItem) => {
+  setcart((oldcart) => {
+    return [...oldcart, menuItem]
+  })
+}
+  return <div className="App">
+   <h2>Menu  Price   Category</h2>
+     {menuItems.map((menuItem) => (
+        <li key={menuItem.name}>
+          {menuItem.name} - ${menuItem.price} - {menuItem.category}
+        <button onClick={() => addtocart(menuItem)}>Add to cart</button>
+        </li>
+     ))}
+
+<h3>Cart</h3>
+{cart.map((cartItem) => (
+        <li key={cartItem.name}>
+          {cartItem.name} - ${cartItem.price} - {cartItem.category}
+       </li>
+      ))}
+  </div>
+}
 export default App;
